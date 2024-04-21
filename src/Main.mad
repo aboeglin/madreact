@@ -1,0 +1,71 @@
+#- import React from "react" -#
+#- import ReactDOM from "react-dom" -#
+
+type Attribute = StringAttribute(String, String)
+
+type Element a = __Element__
+
+
+useState :: a -> { set :: a -> {}, value :: a }
+useState = (initialState) => {
+  #-
+    const [value, set] = React.useState(initialState);
+  -#
+
+  return #- return { set, value } -#
+}
+
+
+useEffect :: ({} -> {}) -> {}
+useEffect = (cb) => {
+  #-
+    React.useEffect(cb, []);
+  -#
+}
+
+
+h1 :: a -> List (Element {}) -> Element {}
+h1 = (props, children) => {
+  #-
+  const propsArray = __listToJSArray__(props);
+  const childrenArray = __listToJSArray__(children);
+  -#
+  return #- return React.createElement("h1", null, childrenArray) -#
+}
+
+Component :: (a -> Element {}) -> a -> Element {}
+Component = (fn, props) => {
+  #- console.log(fn) -#
+  return #- return React.createElement(fn, props, props.children) -#
+}
+
+render = (elem, rootId) => {
+  #-
+  const root = document.getElementById(rootId);
+  console.log(root)
+  console.log(elem)
+  ReactDOM.render(elem, root)
+  -#
+}
+
+MyComp = Component(
+  (props) => {
+    state = useState(props.stuff.x)
+    useEffect(() => { state.set(state.value * 2) })
+
+    return <h1>
+      {props.children}
+      {show(props.stuff.x)}
+      :
+      {show(state.value)}
+      {props.elem}
+      <h1>
+        HEY
+      </h1>
+    </h1>
+  },
+)
+
+main = () => {
+  render(<h1>{MyComp({ children: "YEAH!!", stuff: { x: 3 }, elem: <h1> Element</h1> })}</h1>, "app")
+}
